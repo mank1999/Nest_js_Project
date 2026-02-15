@@ -45,12 +45,11 @@ export class UserController {
   @Post('/create')
   public createUser(
     @Body(new ValidationPipe()) createUserReq: CreateUserDto,
-    @Headers() header: any,
+    // @Headers() header: any,
   ) {
-    console.log(createUserReq);
-    console.log(header);
+   
     // console.log(body);
-    return 'User created successfully';
+    return this.userService.createUser(createUserReq)
   }
 
   @Patch('/update')
