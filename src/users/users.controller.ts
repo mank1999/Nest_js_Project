@@ -11,11 +11,14 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
   ValidationPipe,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create.user.dto';
 import { getUserDTO } from './dto/user.get.dto';
 import { updateCreateUserDto } from './dto/user.patch.dto';
 import { UserService } from './provider/user.service';
+import { SignInUserDTO } from './dto/signIn.dto';
 //localhost:3000/users
 
 //service nothing but api bussines logic how its perform
@@ -39,7 +42,7 @@ export class UserController {
   @Get('/user/:id')
   public findUser(@Param(new ValidationPipe()) param: getUserDTO) {
     console.log(getUserDTO);
-    return "user data get"
+    return 'user data get';
   }
 
   @Post('/create')
@@ -47,9 +50,8 @@ export class UserController {
     @Body(new ValidationPipe()) createUserReq: CreateUserDto,
     // @Headers() header: any,
   ) {
-   
     // console.log(body);
-    return this.userService.createUser(createUserReq)
+    return this.userService.createUser(createUserReq);
   }
 
   @Patch('/update')
@@ -57,5 +59,11 @@ export class UserController {
     @Body(new ValidationPipe()) updateUserDto: updateCreateUserDto,
   ) {
     return 'user update successfully';
+  }
+
+  @Post('/sign-in')
+  @HttpCode(HttpStatus.OK)
+  public signInUser(@Body(new ValidationPipe()) signInUserDTO: SignInUserDTO) {
+    return this.userService.signInuser(signInUserDTO);
   }
 }
