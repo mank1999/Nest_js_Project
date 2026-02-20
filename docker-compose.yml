@@ -1,0 +1,50 @@
+
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: nestjs-postgres
+    env_file:
+      - .env.docker
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nestjs-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: nestjs-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.docker
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - nestjs-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  nestjs-network:
+    driver: bridge
