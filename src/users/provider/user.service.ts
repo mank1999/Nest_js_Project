@@ -51,6 +51,15 @@ export class UserService {
     ];
   }
 
+  public async getAllUsers() {
+    try {
+      const users = await this.UserRepository.find();
+      return users;
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch users');
+    }
+  }
+
   public getFewPosts(param: string) {
     return {
       topic: 'biology',
@@ -99,7 +108,7 @@ export class UserService {
         signInUserDTO.password,
         user.password,
       );
-      console.log(verifyPass)
+      console.log(verifyPass);
       if (!verifyPass) {
         return new BadGatewayException('Incorrect Password');
       }
@@ -119,9 +128,24 @@ export class UserService {
       );
       return {
         accessToken,
+        ser: { id: user.id, email: user.email },
       };
     } catch (error) {
       return new BadGatewayException(error);
+    }
+  }
+
+  public async getCurrentUser(userId: string) {
+    try {
+      const user = await this.UserRepository.findOne({
+        where: { id: userId },
+      });
+      if (!user) {
+        throw new BadRequestException('User not found');
+      }
+      return { id: user.id, email: user.email };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch current user');
     }
   }
 }

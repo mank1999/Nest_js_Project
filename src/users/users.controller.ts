@@ -13,12 +13,15 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  Request,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create.user.dto';
 import { getUserDTO } from './dto/user.get.dto';
 import { updateCreateUserDto } from './dto/user.patch.dto';
 import { UserService } from './provider/user.service';
 import { SignInUserDTO } from './dto/signIn.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport'; // or use JwtGuard if you have one
 //localhost:3000/users
 
 //service nothing but api bussines logic how its perform
@@ -26,6 +29,11 @@ import { SignInUserDTO } from './dto/signIn.dto';
 export class UserController {
   //injecting user service (adding instance of user service)
   constructor(private readonly userService: UserService) {}
+
+  @Get()
+  public getAllUsers() {
+    return this.userService.getAllUsers();
+  }
 
   @Get('/:id/:sample')
   public getUser(
@@ -65,5 +73,11 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   public signInUser(@Body(new ValidationPipe()) signInUserDTO: SignInUserDTO) {
     return this.userService.signInuser(signInUserDTO);
+  }
+
+  @Get('/me')
+  @UseGuards(AuthGuard('jwt'))
+  public getCurrentUser(@Request() req) {
+    return this.userService.getCurrentUser(req.user.sub);
   }
 }
